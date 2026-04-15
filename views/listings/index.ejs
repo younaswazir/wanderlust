@@ -1,0 +1,571 @@
+<% layout("/layouts/boilerplate") %>
+
+    <style>
+        /* ===== Filter Container ===== */
+        #filters {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        /* ===== Scrollable Filter Wrapper ===== */
+        .filters-wrapper {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 1rem 0;
+            scroll-behavior: smooth;
+        }
+
+        .filters-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ===== Individual Filter Item ===== */
+        .filter {
+            text-align: center;
+            margin-right: 2rem;
+            opacity: 0.7;
+            flex-shrink: 0;
+            transition: opacity 0.2s ease;
+            cursor: pointer;
+        }
+
+        .filter:hover {
+            opacity: 1;
+        }
+
+        .filter.active {
+            opacity: 1;
+            border-bottom: 2px solid #222;
+            padding-bottom: 0.25rem;
+        }
+
+        .filter i {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .filter p {
+            font-size: 0.8rem;
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        /* ===== Scroll Arrows ===== */
+        .scroll-arrow {
+            display: none;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            width: 2.2rem;
+            height: 2.2rem;
+            font-size: 1rem;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+            align-items: center;
+            justify-content: center;
+            transition: box-shadow 0.2s ease;
+        }
+
+        .scroll-arrow:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+        }
+
+        .scroll-arrow.left {
+            left: 0;
+        }
+
+        .scroll-arrow.right {
+            right: 6rem;
+        }
+
+        /* ===== Tax Toggle ===== */
+        .text-toggle {
+            border: 1px solid #ddd;
+            border-radius: 1rem;
+            padding: 0.75rem 1rem;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            margin-left: 1rem;
+            white-space: nowrap;
+        }
+
+        .tax-info {
+            display: none;
+        }
+
+        /* ===== Mobile Filter Toggle Button ===== */
+        .mobile-filter-btn {
+            display: none;
+            background: #222;
+            color: #fff;
+            border: none;
+            border-radius: 2rem;
+            padding: 0.6rem 1.25rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            flex-shrink: 0;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mobile-filter-btn i {
+            font-size: 0.85rem;
+        }
+
+        /* ===== Mobile Filter Drawer ===== */
+        .filter-drawer-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 1040;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .filter-drawer-overlay.show {
+            opacity: 1;
+        }
+
+        .filter-drawer {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            border-radius: 1.5rem 1.5rem 0 0;
+            padding: 1.5rem 1.5rem 2rem;
+            z-index: 1050;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .filter-drawer.open {
+            transform: translateY(0);
+        }
+
+        .filter-drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-drawer-header h5 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .filter-drawer-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            color: #666;
+        }
+
+        .filter-drawer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+
+        .filter-drawer-grid .filter {
+            margin-right: 0;
+            padding: 0.5rem;
+            border-radius: 0.75rem;
+        }
+
+        .filter-drawer-grid .filter:hover {
+            background: #f5f5f5;
+        }
+
+        .filter-drawer-grid .filter i {
+            font-size: 1.75rem;
+        }
+
+        .filter-drawer-toggle {
+            margin-top: 1.5rem;
+            border-top: 1px solid #eee;
+            padding-top: 1rem;
+        }
+
+        .filter-drawer-toggle .text-toggle {
+            margin-left: 0;
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* ===== Tablet: lg and up (992px+) ===== */
+        @media (min-width: 992px) {
+            .filter {
+                margin-right: 2rem;
+                margin-top: 1rem;
+            }
+
+            .text-toggle {
+                margin-left: 5rem;
+                padding: 1rem;
+                height: 3.25rem;
+            }
+        }
+
+        /* ===== Tablet: md (768px - 991px) ===== */
+        @media (max-width: 991px) {
+            #filters {
+                flex-wrap: nowrap;
+            }
+
+            .filters-wrapper {
+                padding-right: 5rem;
+            }
+
+            .filter {
+                margin-right: 1.5rem;
+                margin-top: 0.75rem;
+            }
+
+            .text-toggle {
+                margin-left: auto;
+                height: auto;
+                padding: 0.6rem 0.9rem;
+            }
+
+            .scroll-arrow {
+                display: flex;
+            }
+
+            .text-toggle .form-check-label {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* ===== Mobile: sm (576px - 767px) ===== */
+        @media (max-width: 767px) {
+            .scroll-arrow.right {
+                right: 5rem;
+            }
+
+            .text-toggle {
+                margin-left: auto;
+            }
+
+            .text-toggle .form-check-label {
+                display: none;
+            }
+
+            .text-toggle .form-check-input {
+                margin: 0;
+            }
+        }
+
+        /* ===== Small Mobile (max-width: 575px) ===== */
+        @media (max-width: 575px) {
+            #filters {
+                flex-wrap: nowrap;
+                justify-content: space-between;
+                gap: 0.5rem;
+            }
+
+            .filters-wrapper {
+                display: none;
+            }
+
+            .scroll-arrow {
+                display: none !important;
+            }
+
+            .mobile-filter-btn {
+                display: flex;
+            }
+
+            .text-toggle {
+                margin-left: 0;
+                padding: 0.5rem 0.75rem;
+            }
+
+            .text-toggle .form-check-label {
+                display: none;
+            }
+
+            .filter-drawer-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .filter-drawer {
+                padding: 1.25rem 1.25rem 1.5rem;
+            }
+        }
+
+        /* ===== Extra Small Mobile (max-width: 400px) ===== */
+        @media (max-width: 400px) {
+            .filter-drawer-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .text-toggle {
+                padding: 0.4rem 0.6rem;
+            }
+        }
+    </style>
+
+    <!-- ===== Filter Form ===== -->
+    <form method="GET" action="/listings" id="filterForm">
+        <input type="hidden" name="category" id="categoryInput" value="">
+
+        <div id="filters">
+            <!-- Scrollable Filters (Desktop/Tablet) -->
+            <div class="filters-wrapper" id="filtersWrapper">
+                <div class="filter active" onclick="submitFilter('')">
+                    <div><i class="fa-solid fa-list"></i></div>
+                    <p>All</p>
+                </div>
+                <div class="filter" onclick="submitFilter('trending')">
+                    <div><i class="fa-solid fa-fire"></i></div>
+                    <p>Trending</p>
+                </div>
+                <div class="filter" onclick="submitFilter('rooms')">
+                    <div><i class="fa-solid fa-bed"></i></div>
+                    <p>Rooms</p>
+                </div>
+                <div class="filter" onclick="submitFilter('iconic cities')">
+                    <div><i class="fa-solid fa-mountain-city"></i></div>
+                    <p>Iconic Cities</p>
+                </div>
+                <div class="filter" onclick="submitFilter('mountains')">
+                    <div><i class="fa-solid fa-mountain"></i></div>
+                    <p>Mountains</p>
+                </div>
+                <div class="filter" onclick="submitFilter('castles')">
+                    <div><i class="fa-brands fa-fort-awesome"></i></div>
+                    <p>Castles</p>
+                </div>
+                <div class="filter" onclick="submitFilter('amazing pools')">
+                    <div><i class="fa-solid fa-person-swimming"></i></div>
+                    <p>Amazing Pools</p>
+                </div>
+                <div class="filter" onclick="submitFilter('camping')">
+                    <div><i class="fa-solid fa-campground"></i></div>
+                    <p>Camping</p>
+                </div>
+                <div class="filter" onclick="submitFilter('farms')">
+                    <div><i class="fa-solid fa-cow"></i></div>
+                    <p>Farms</p>
+                </div>
+                <div class="filter" onclick="submitFilter('arctic')">
+                    <div><i class="fa-regular fa-snowflake"></i></div>
+                    <p>Arctic</p>
+                </div>
+            </div>
+
+            <!-- Scroll Arrows -->
+            <button type="button" class="scroll-arrow left" onclick="scrollFilters('left')">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button type="button" class="scroll-arrow right" onclick="scrollFilters('right')">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <!-- Mobile Filter Button -->
+            <button type="button" class="mobile-filter-btn" id="mobileFilterBtn">
+                <i class="fa-solid fa-sliders"></i>
+                Filters
+            </button>
+
+            <!-- Tax Toggle Switch -->
+            <div class="text-toggle">
+                <div class="form-check-reverse form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
+                    <label class="form-check-label" for="switchCheckDefault">Display total after taxes</label>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- ===== Mobile Filter Drawer ===== -->
+    <div class="filter-drawer-overlay" id="filterDrawerOverlay"></div>
+    <div class="filter-drawer" id="filterDrawer">
+        <div class="filter-drawer-header">
+            <h5>Categories</h5>
+            <button class="filter-drawer-close" id="filterDrawerClose">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="filter-drawer-grid">
+            <div class="filter" onclick="submitFilterFromDrawer('')">
+                <div><i class="fa-solid fa-list"></i></div>
+                <p>All</p>
+            </div>
+            <div class="filter" onclick="submitFilterFromDrawer('trending')">
+                <div><i class="fa-solid fa-fire"></i></div>
+                <p>Trending</p>
+            </div>
+            <div class="filter" onclick="submitFilterFromDrawer('rooms')">
+                <div><i class="fa-solid fa-bed"></i></div>
+                <p>Rooms</p>
+            </div>
+            <div class="filter" onclick="submitFilterFromDrawer('iconic cities')">
+                <div><i class="fa-solid fa-mountain-city"></i></div>
+                <p>Iconic Cities</p>
+            </div>
+            <div class="filter" onclick="submitFilterFromDrawer('mountains')">
+                <div><i class="fa-solid fa-mountain"></i></div>
+                <p>Mountains</p>
+            </div>
+            <div class="filter" onclick="submitFilterFromDrawer('castles')">
+                <div><i class="fa-brands fa-fort-awesome"></i></div>
+                <p>Castles</p>
+            </div>
+            <div class="filter" onclick="submitFilterFromDrawer('amazing pools')">
+                <div><i class="fa-solid fa-person-swimming"></i></div>
+                <p>Amazing Pools</p>
+            </div>
+            <div class="filter" onclick="submitFilterFromDrawer('camping')">
+                <div><i class="fa-solid fa-campground"></i></div>
+                <p>Camping</p>
+            </div>
+            <div class="filter" onclick="submitFilterFromDrawer('farms')">
+                <div><i class="fa-solid fa-cow"></i></div>
+                <p>Farms</p>
+            </div>
+            <div class="filter" onclick="submitFilterFromDrawer('arctic')">
+                <div><i class="fa-regular fa-snowflake"></i></div>
+                <p>Arctic</p>
+            </div>
+        </div>
+        <div class="filter-drawer-toggle">
+            <div class="text-toggle">
+                <div class="form-check-reverse form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefaultDrawer">
+                    <label class="form-check-label" for="switchCheckDefaultDrawer">Display total after taxes</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 mt-3">
+        <% for(let listing of allListings){ %>
+            <a href="/listings/<%= listing._id %>" class="listing-link">
+                <div class="card col listing-card">
+                    <img src="<%= listing?.image?.url %>" class="card-img-top" alt="listing_image"
+                        style="height: 20rem;">
+                    <div class="card-img-overlay"></div>
+                    <div class="card-body">
+                        <p class="card-text">
+                            <b>
+                                <%= listing?.title %>
+                            </b> <br>
+                            &#8377; <%= listing?.price?.toLocaleString("en-PK") %> / night
+                                <i class="tax-info"> &nbsp; +18% GST</i>
+                        </p>
+                    </div>
+                </div>
+            </a>
+            <% } %>
+    </div>
+    <script>
+        // ===== Submit Filter (Desktop) =====
+        function submitFilter(category) {
+            document.getElementById("categoryInput").value = category;
+            document.getElementById("filterForm").submit();
+        }
+
+        // ===== Submit Filter (Mobile Drawer) =====
+        function submitFilterFromDrawer(category) {
+            document.getElementById("categoryInput").value = category;
+            closeDrawer();
+            document.getElementById("filterForm").submit();
+        }
+
+        // ===== Scroll Filters =====
+        function scrollFilters(direction) {
+            const wrapper = document.getElementById("filtersWrapper");
+            const scrollAmount = 200;
+            if (direction === "left") {
+                wrapper.scrollBy({ left: -scrollAmount, behavior: "smooth" });
+            } else {
+                wrapper.scrollBy({ left: scrollAmount, behavior: "smooth" });
+            }
+        }
+
+        // ===== Drawer Open/Close =====
+        const mobileFilterBtn = document.getElementById("mobileFilterBtn");
+        const filterDrawer = document.getElementById("filterDrawer");
+        const filterDrawerOverlay = document.getElementById("filterDrawerOverlay");
+        const filterDrawerClose = document.getElementById("filterDrawerClose");
+
+        function openDrawer() {
+            filterDrawer.style.display = "block";
+            filterDrawerOverlay.style.display = "block";
+            setTimeout(() => {
+                filterDrawer.classList.add("open");
+                filterDrawerOverlay.classList.add("show");
+            }, 10);
+        }
+
+        function closeDrawer() {
+            filterDrawer.classList.remove("open");
+            filterDrawerOverlay.classList.remove("show");
+            setTimeout(() => {
+                filterDrawer.style.display = "none";
+                filterDrawerOverlay.style.display = "none";
+            }, 300);
+        }
+
+        mobileFilterBtn.addEventListener("click", openDrawer);
+        filterDrawerClose.addEventListener("click", closeDrawer);
+        filterDrawerOverlay.addEventListener("click", closeDrawer);
+
+        // ===== Tax Toggle Switch =====
+        function toggleTaxInfo() {
+            let taxInfo = document.getElementsByClassName("tax-info");
+            for (let tax of taxInfo) {
+                if (tax.style.display !== "inline") {
+                    tax.style.display = "inline";
+                } else {
+                    tax.style.display = "none";
+                }
+            }
+        }
+
+        let taxSwitch = document.getElementById("switchCheckDefault");
+        let taxSwitchDrawer = document.getElementById("switchCheckDefaultDrawer");
+
+        taxSwitch.addEventListener("click", toggleTaxInfo);
+        taxSwitchDrawer.addEventListener("click", toggleTaxInfo);
+
+        // ===== Highlight Active Filter =====
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentCategory = urlParams.get("category") || "";
+
+            document.querySelectorAll("#filtersWrapper .filter").forEach(filter => {
+                filter.classList.remove("active");
+                const filterValue = filter.getAttribute("onclick").match(/'([^']*)'/)[1];
+                if (filterValue === currentCategory) {
+                    filter.classList.add("active");
+                }
+            });
+        });
+    </script>
