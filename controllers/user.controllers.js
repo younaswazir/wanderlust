@@ -31,9 +31,6 @@ const renderLoginForm = (req, res) => {
 const login = async (req, res) => {
   req.flash("success", "Welcome back to Wanderlust!");
   let redirectUrl = res.locals.redirectUrl || "/listings";
-  // if(!redirectUrl){
-  //   return res.redirect("/listings")
-  // }
   res.redirect(redirectUrl);
 };
 

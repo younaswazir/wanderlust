@@ -47,7 +47,7 @@ const createNewListing = wrapAsync(async (req, res, next) => {
     };
   }
   newListing.geometry = Geocoordinates;
-  let savedListing = await Listing.create(newListing);
+  await Listing.create(newListing);
   req.flash("success", "New Listing Created!");
   res.redirect("/listings");
 });
