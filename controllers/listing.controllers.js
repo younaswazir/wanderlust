@@ -45,6 +45,10 @@ const getAllListings = wrapAsync(async (req, res) => {
     filter.country = {$regex: search, $options: "i"};
   }
   const allListings = await Listing.find(filter);
+  if(allListings.length === 0){
+    req.flash("error", "No listing found");
+    return res.redirect("/listings");
+  }
   res.render("./listings/index.ejs", { allListings });
 });
 
