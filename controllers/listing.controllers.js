@@ -1,6 +1,38 @@
 const Listing = require("../models/listing");
 const wrapAsync = require("../utils/wrapAsync");
 
+const buildOriginalImageUrl = (listing) => {
+  if (!listing?.image?.url) return null;
+  return listing.image.url.replace("/upload", "/upload/w_250");
+};
+
+const renderNewListingView = (res, formData = {}, imageError = null) => {
+  res.status(400).render("./listings/new.ejs", { formData, imageError });
+};
+
+const renderEditListingView = async (
+  req,
+  res,
+  formData = {},
+  imageError = null,
+  status = 400,
+) => {
+  const { id } = req.params;
+  const listing = await Listing.findById(id);
+
+  if (!listing) {
+    req.flash("error", "Listing does not exists");
+    return res.redirect("/listings");
+  }
+
+  const originalImageUrl = buildOriginalImageUrl(listing);
+  return res.status(status).render("./listings/edit.ejs", {
+    listing,
+    originalImageUrl,
+    formData,
+    imageError,
+  });
+};
 
 //Get All Listings Controller
 const getAllListings = wrapAsync(async (req, res) => {
@@ -18,7 +50,7 @@ const getAllListings = wrapAsync(async (req, res) => {
 
 //Rendring form for creating new listing
 const getNewListingForm = (req, res) => {
-  res.render("./listings/new.ejs");
+  res.render("./listings/new.ejs", { formData: {}, imageError: null });
 };
 
 //Create New Listing
@@ -73,9 +105,13 @@ const getEditListingForm = wrapAsync(async (req, res) => {
     req.flash("error", "Listing does not exists");
     return res.redirect("/listings");
   }
-  let originalImageUrl = listing.image.url;
-  originalImageUrl = originalImageUrl.replace("/upload", "/upload/w_250");
-  res.render("./listings/edit.ejs", { listing, originalImageUrl });
+  let originalImageUrl = buildOriginalImageUrl(listing);
+  res.render("./listings/edit.ejs", {
+    listing,
+    originalImageUrl,
+    formData: {},
+    imageError: null,
+  });
 });
 
 //update listing
@@ -104,6 +140,8 @@ const deleteListing = wrapAsync(async (req, res) => {
 module.exports = {
   getAllListings,
   getNewListingForm,
+  renderNewListingView,
+  renderEditListingView,
   createNewListing,
   showListing,
   getEditListingForm,

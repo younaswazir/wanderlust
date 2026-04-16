@@ -15,7 +15,7 @@
         <input
           type="text"
           name="listing[title]"
-          value="<%= listing.title %>"
+          value="<%= formData.title || listing.title %>"
           class="form-control"
           id="title"
           required
@@ -25,7 +25,7 @@
       </div>
       <div class="mb-3">
         <label for="description" class="form-label">Description</label>
-        <textarea name="listing[description]" class="form-control" required><%= listing.description %></textarea>
+        <textarea name="listing[description]" class="form-control" required><%= formData.description || listing.description %></textarea>
         <div class="invalid-feedback">description is required</div>
       </div>
       <div class="mb-3">
@@ -37,9 +37,12 @@
         <input
           type="file"
           name="listing[image]"
-          class="form-control"
+          class="form-control <%= imageError ? 'is-invalid' : '' %>"
           id="image"
         />
+        <% if (imageError) { %>
+          <div class="invalid-feedback d-block"><%= imageError %></div>
+        <% } %>
       </div>
       <div class="row">
         <div class="mb-3 col-md-4">
@@ -47,7 +50,7 @@
           <input
             type="number"
             name="listing[price]"
-            value="<%= listing.price %>"
+            value="<%= formData.price || listing.price %>"
             class="form-control"
             id="price"
             required
@@ -59,7 +62,7 @@
           <input
             type="text"
             name="listing[country]"
-            value="<%= listing.country %>"
+            value="<%= formData.country || listing.country %>"
             class="form-control"
             id="country"
             required
@@ -72,7 +75,7 @@
         <input
           type="text"
           name="listing[location]"
-          value="<%= listing.location %>"
+          value="<%= formData.location || listing.location %>"
           class="form-control"
           id="location"
           required
@@ -82,15 +85,15 @@
       <div class="mb-3">
           <label for="location" class="form-label">Category</label>
           <select name="listing[category]" class="form-select form-select-lg mb-3" aria-label="Large select example" required>
-            <option selected value="trending">trending</option>
-            <option value="rooms" >rooms</option>
-            <option value="iconic cities">iconic cities</option>
-            <option value="mountains">mountains</option>
-            <option value="castles">castles</option>
-            <option value="amazing pools">amazing pools</option>
-            <option value="camping">camping</option>
-            <option value="farms">farms</option>
-            <option value="arctic">arctic</option>
+            <option value="trending" <%= (formData.category || listing.category) === "trending" ? "selected" : "" %>>trending</option>
+            <option value="rooms" <%= (formData.category || listing.category) === "rooms" ? "selected" : "" %>>rooms</option>
+            <option value="iconic cities" <%= (formData.category || listing.category) === "iconic cities" ? "selected" : "" %>>iconic cities</option>
+            <option value="mountains" <%= (formData.category || listing.category) === "mountains" ? "selected" : "" %>>mountains</option>
+            <option value="castles" <%= (formData.category || listing.category) === "castles" ? "selected" : "" %>>castles</option>
+            <option value="amazing pools" <%= (formData.category || listing.category) === "amazing pools" ? "selected" : "" %>>amazing pools</option>
+            <option value="camping" <%= (formData.category || listing.category) === "camping" ? "selected" : "" %>>camping</option>
+            <option value="farms" <%= (formData.category || listing.category) === "farms" ? "selected" : "" %>>farms</option>
+            <option value="arctic" <%= (formData.category || listing.category) === "arctic" ? "selected" : "" %>>arctic</option>
           </select>
           <div class="invalid-feedback">Category is required</div>
         </div>

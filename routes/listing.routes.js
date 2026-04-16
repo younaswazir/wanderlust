@@ -4,7 +4,24 @@ const listingControllers = require("../controllers/listing.controllers");
 const { isLoggedIn, isOwner, validateListing } = require("../middleware");
 const multer = require("multer");
 const { storage } = require("../config/cloud");
-const upload = multer({ storage });
+
+const MAX_IMAGE_SIZE = 1024 * 1024;
+const upload = multer({
+  storage,
+  limits: { fileSize: MAX_IMAGE_SIZE },
+});
+
+const handleImageUpload = (renderOnError) => (req, res, next) => {
+  upload.single("listing[image]")(req, res, async (err) => {
+    if (!err) return next();
+
+    if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
+      return renderOnError(req, res, "Image size should be 1 MB or lower.");
+    }
+
+    return next(err);
+  });
+};
 
 // if req come through this path it will check for the verb and then trigger the one it matches
 // verb means (get, post, put, delete)
@@ -13,7 +30,13 @@ router
   .get(listingControllers.getAllListings) //get all listings
   .post(
     isLoggedIn,
-    upload.single("listing[image]"),
+    handleImageUpload((req, res, imageError) =>
+      listingControllers.renderNewListingView(
+        res,
+        req.body.listing || {},
+        imageError,
+      ),
+    ),
     validateListing,
     listingControllers.createNewListing,
   ); //create listing
@@ -27,7 +50,14 @@ router
   .put(
     isLoggedIn,
     isOwner,
-    upload.single("listing[image]"),
+    handleImageUpload((req, res, imageError) =>
+      listingControllers.renderEditListingView(
+        req,
+        res,
+        req.body.listing || {},
+        imageError,
+      ),
+    ),
     validateListing,
     listingControllers.updateListing,
   )

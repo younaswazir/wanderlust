@@ -8,31 +8,34 @@
         <div class="mb-3">
           <label for="title" class="form-label">Title</label>
           <input type="text" name="listing[title]" placeholder="Add a catchy title" id="title" class="form-control"
-            required />
+            value="<%= formData.title || '' %>" required />
           <div class="valid-feedback">Title looks good!</div>
           <div class="invalid-feedback">title is required</div>
         </div>
         <div class="mb-3">
           <label for="description" class="form-label">Description</label>
-          <textarea name="listing[description]" id="description" class="form-control" required></textarea>
+          <textarea name="listing[description]" id="description" class="form-control" required><%= formData.description || '' %></textarea>
           <div class="invalid-feedback">description is required</div>
         </div>
         <div class="mb-3">
           <label for="image" class="form-label">Upload Listing Image</label>
-          <input type="file" name="listing[image]" class="form-control" required />
+          <input type="file" name="listing[image]" class="form-control <%= imageError ? 'is-invalid' : '' %>" id="image" required />
+          <% if (imageError) { %>
+            <div class="invalid-feedback d-block"><%= imageError %></div>
+          <% } %>
         </div>
 
         <div class="row">
           <div class="mb-3 col-md-4">
             <label for="price" class="form-label">Price</label>
-            <input type="number" name="listing[price]" placeholder="1200" class="form-control" id="price" required />
+            <input type="number" name="listing[price]" placeholder="1200" class="form-control" id="price" value="<%= formData.price || '' %>" required />
             <div class="invalid-feedback">price is required</div>
           </div>
 
           <div class="mb-3 col-md-8">
             <label for="country" class="form-label">Country</label>
             <input type="text" name="listing[country]" placeholder="Pakistan" class="form-control" id="country"
-              required />
+              value="<%= formData.country || '' %>" required />
             <div class="invalid-feedback">country is required</div>
           </div>
         </div>
@@ -40,21 +43,21 @@
         <div class="mb-3">
           <label for="location" class="form-label">Location</label>
           <input type="text" name="listing[location]" placeholder="Peshawar, Pakistan" class="form-control"
-            id="location" required />
+            id="location" value="<%= formData.location || '' %>" required />
           <div class="invalid-feedback">location is required</div>
         </div>
         <div class="mb-3">
           <label for="location" class="form-label">Category</label>
           <select name="listing[category]" class="form-select form-select-lg mb-3" aria-label="Large select example" required>
-            <option selected value="trending">trending</option>
-            <option value="rooms" >rooms</option>
-            <option value="iconic cities">iconic cities</option>
-            <option value="mountains">mountains</option>
-            <option value="castles">castles</option>
-            <option value="amazing pools">amazing pools</option>
-            <option value="camping">camping</option>
-            <option value="farms">farms</option>
-            <option value="arctic">arctic</option>
+            <option value="trending" <%= (formData.category || "trending") === "trending" ? "selected" : "" %>>trending</option>
+            <option value="rooms" <%= formData.category === "rooms" ? "selected" : "" %>>rooms</option>
+            <option value="iconic cities" <%= formData.category === "iconic cities" ? "selected" : "" %>>iconic cities</option>
+            <option value="mountains" <%= formData.category === "mountains" ? "selected" : "" %>>mountains</option>
+            <option value="castles" <%= formData.category === "castles" ? "selected" : "" %>>castles</option>
+            <option value="amazing pools" <%= formData.category === "amazing pools" ? "selected" : "" %>>amazing pools</option>
+            <option value="camping" <%= formData.category === "camping" ? "selected" : "" %>>camping</option>
+            <option value="farms" <%= formData.category === "farms" ? "selected" : "" %>>farms</option>
+            <option value="arctic" <%= formData.category === "arctic" ? "selected" : "" %>>arctic</option>
           </select>
           <div class="invalid-feedback">Category is required</div>
         </div>
