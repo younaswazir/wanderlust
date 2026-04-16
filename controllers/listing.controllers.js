@@ -37,6 +37,7 @@ const renderEditListingView = async (
 //Get All Listings Controller
 const getAllListings = wrapAsync(async (req, res) => {
   const { category, search } = req.query;
+  const trimmedSearch = search?.trim();
   let filter = {};
   if(category){
     filter.category = category;
