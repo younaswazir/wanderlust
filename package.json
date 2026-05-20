@@ -7,6 +7,10 @@
   "main": "server.js",
   "author": "Muhammad Younas",
   "license": "MIT",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
   "dependencies": {
     "cloudinary": "^2.9.0",
     "connect-flash": "^0.1.1",
